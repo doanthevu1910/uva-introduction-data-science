@@ -1,0 +1,183 @@
+---
+title: "Assignment 2"
+author: "Vu The Doan (12918687), Aljer Lee Zhen Yee (12563412)"
+date: "6/26/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+1. 
+```{r}
+Data=data.matrix(read.table("InterestRates.txt", header=FALSE))
+```
+Plot of the yield curve for day 1, day 200, day 400, day 600 and day 800:
+```{r}
+library(ggplot2)
+d1 <- NULL
+for (i in 1:ncol(Data)) {
+  d1[i] <- Data[1,i]
+}
+d200 <- NULL
+for (i in 1:ncol(Data)) {
+  d200[i] <- Data[200,i]
+}
+d400<- NULL
+for (i in 1:ncol(Data)) {
+  d400[i] <- Data[400,i]
+}
+d600 <- NULL
+for (i in 1:ncol(Data)) {
+  d600[i] <- Data[600,i]
+}
+d800 <- NULL
+for (i in 1:ncol(Data)) {
+  d800[i] <- Data[800,i]
+}
+ggplot() + 
+  geom_line(mapping = aes(x=1:51, y=d1), col = 1, size = 1) + 
+  geom_line(mapping = aes(x=1:51, y=d200), col = 2, size = 1) + 
+  geom_line(mapping = aes(x=1:51, y=d400), col = 3, size = 1) + 
+  geom_line(mapping = aes(x=1:51, y=d600), col = 4, size = 1) +  
+  geom_line(mapping = aes(x=1:51, y=d800), col = 5, size = 1) +
+  labs(x="maturity level", y="yield") +
+  ggtitle("Yield curve for 5 different days")
+```
+
+2. Plot of the overnight yield and 5-year maturity yield:
+```{r}
+v1 <- NULL
+for (i in 1:nrow(Data)) {
+  v1[i] <- Data[i, 1]
+}
+v11 <- NULL
+for (i in 1:nrow(Data)) {
+  v11[i] <- Data[i, 11]
+}
+ggplot() +
+  geom_line(mapping = aes(x=1:nrow(Data), y=v1), col = "black") +
+  geom_line(mapping = aes(x=1:nrow(Data), y=v11), col = "blue") +
+  labs(x="maturity level", y="yield") +
+  ggtitle("overnight maturity: black, 5-year maturity: blue")
+```
+The overnight yield fluctuates heavily. It decreases from 5.773 to a minimum at 3.263, then increases to 4.614 in the end. The 5-year yield decreases overall, with the starting value of 5.572 and the end value of 4.518. 
+
+3. The pairwise scatterplot for the changes in the yield for the 1-year, 5-year, 10-year, 15-year, 20-year and 25-year maturity:
+```{r}
+Change <- Data[2:1264,] - Data[1:1263,]
+pairs(~V3 + V11 + V21 + V31 + V41 + V51, data=Change, pch=20, col="blue", 
+      main = "Dependencies between yield changes")
+```
+Dependency can be explained by the pairwise scatterplot, and based on the scatterplot, the linear relation to each variable to the subsequent Year 5, 10, 15, 20 and 25 can be observed. The dependency of Year 5 to the subsequent years is shown above and a pattern can be observed, where the dependency of the Year 5 to Year 10 is strongest and the subsequent years decreases as it approaches Year 25, which is depicted by the linear relationship of the scatterplot. On the other hand, there are further findings that can be observed: 
+
+- Observation 1: Year 1 has a stronger dependency to Year 5, as compared to the subsequent years later as the dependency decreases, which can be observed from the linearity of the scatterplot.
+
+- Observation 2: Year 5 has a stronger dependency to Year 10, as compared to the subsequent years later and its dependency is much more prominent that Observation 1.
+
+- Observation 3: Year 15 has the strongest dependency to Year 20, as compared to the previous two observations.
+
+The correlation between the yield changes of 1-year (black), 5-year (red), 10-year (green), 15-year (blue), 20-year (teal) and 25-year (teal) maturity and every other maturities:
+```{r}
+a1<- NULL
+for (i in 3:51) {
+  a1[i] <- cor(Change[,3], Change[,i])
+}
+a11<- NULL
+for (i in 3:51) {
+  a11[i] <- cor(Change[,11], Change[,i])
+}
+a21<- NULL
+for (i in 3:51) {
+  a21[i] <- cor(Change[,21], Change[,i])
+}
+a31<- NULL
+for (i in 3:51) {
+  a31[i] <- cor(Change[,31], Change[,i])
+}
+a41<- NULL
+for (i in 3:51) {
+  a41[i] <- cor(Change[,41], Change[,i])
+}
+a51<- NULL
+for (i in 3:51) {
+  a51[i] <- cor(Change[,51], Change[,i])
+}
+ggplot() + 
+  geom_line(mapping = aes(x=1:51, y=a1), col = 1, size = 1) + 
+  geom_line(mapping = aes(x=1:51, y=a11), col = 2, size = 1) + 
+  geom_line(mapping = aes(x=1:51, y=a21), col = 3, size = 1) + 
+  geom_line(mapping = aes(x=1:51, y=a31), col = 4, size = 1) +  
+  geom_line(mapping = aes(x=1:51, y=a41), col = 5, size = 1) +
+  geom_line(mapping = aes(x=1:51, y=a51), col = 6, size = 1) +
+  ggtitle("Correlation between yield changes of 1-year, 5-year, 10-year, 15-year, 20-year and 25-year \nmaturity and every other maturities")
+```
+Based on the line graph, these are the findings that can be observed:
+
+- Observation 1: With a comparison from Year 1 to the subsequent years, it can be seen that the correlation decreases to below 0.5 in Year 25. 
+
+- Observation 2: With a comparison from Year 15 to subsequent years, it can be seen that the correlation is decreasing as well, however, it’s higher than Observation 1 which is 0.75 at Year 25.
+
+- Observation 3: With a comparison from Year 20 to subsequent years, it can be seen that the correlation decreases, however, it’s higher than Observation 1 and Observation 2 at 0.9 at Year 25.
+
+Therefore, based on the observation, a pattern can be concluded. The closer the base year we used for comparison, to the year of maturity, the higher the correlation is. 
+
+4. Principal component analysis on the original "Change" dataset:
+```{r}
+Change.PCA <- prcomp(Change)
+library(ggfortify)
+autoplot(Change.PCA, loadings = TRUE, loadings.label = TRUE, loadings.label.size = 3, col = "blue", 
+         main = "PCA for changes in the yield curve (original data)")
+summary(Change.PCA)
+```
+According to the summary, we should keep the first 4 principal components to explain 96.31% of the variance. 
+```{r}
+PC <- Change.PCA$rotation
+round(PC[,1], digits = 3)
+```
+For PC1, all the variable has the same direction, however, V1 (overnight) and V2 (6-month) has the lowest magnitude, while the rest has a similar magnitude that ranges from 0.1 to 0.15.
+```{r}
+round(PC[,2], digits = 3)
+```
+For PC2, the variable V3 to V9 (1-year to 4-year) dominates in PC2 with an approximation of the same magnitude in the 0.2 scale, on the other hand, from V23 (11-year) onwards, it has an opposite direction compared to the previous years.
+```{r}
+round(PC[,3], digits = 3)
+```
+For PC3, the variable V2 to V5 (6-month to 2-year) dominates with the highest magnitude in the positive direction, and in the negative direction, V12 to V24 (5.5-year to 11.5-year) has the highest magnitude.
+```{r}
+round(PC[,4], digits = 3)
+```
+For PC4, the variable V47 to V51 (23-year to 25-year) dominates with a magnitude of 0.22 to 0.317 with a positive direction, however, there is a change of direction from V1 to V38 (overnight to 18.5-year). 
+
+Principal component analysis on the standardized "Change" dataset:
+```{r}
+Change_scaled <- scale(Change)
+Change_scaled.PCA <- prcomp(Change_scaled)
+autoplot(Change_scaled.PCA, loadings = TRUE, loadings.label = TRUE, loadings.label.size = 3, 
+         col = "blue", main = "PCA for changes in the yield curve (standardized data)")
+```
+Standardisation is not required because this transformation is done for data of different scale, however, the data that we currently have is of the same scale. Moreover, it can be seen that the biplot of the original data and the standardized data is similar. This further solidify that the data is standardised, and transformation is not required to standardise the given data.
+
+5. Principal component analysis on the original dataset:
+```{r}
+Data.PCA <- prcomp(Data)
+autoplot(Data.PCA, loadings = TRUE, loadings.label = TRUE, loadings.label.size = 3, col = "blue", 
+         main = "PCA (original data)")
+summary(Data.PCA)
+```
+According to the summary, we should keep the first 3 principal components to explain 97.07% of the variance. 
+```{r}
+Data.PC <- Data.PCA$rotation
+round(Data.PC[,1], digits = 3)
+```
+For PC1, the variable V21 to V51 (10-year to 25-year) dominates with the equal magnitude in the positive direction, and in the negative direction, V1 to V13 (overnight to 6-year) has the highest magnitude.
+```{r}
+round(Data.PC[,2], digits = 3)
+```
+For PC2, all the values are negative. This implies a negative effect on the yield.
+```{r}
+round(Data.PC[,3], digits = 3)
+```
+For PC3, the variable V1 (overnight) and V2 (6-month) dominates with the highest magnitude in the negative direction. 
+
+The PC1 explains roughly 77.9% of the variance, PC2 explains 16.38% of the variance, and PC3 explains 2.79% of the variance. In sum, the first 3 PC's explain 97.07% of the variance. As a consequence, the yield curve movements can be approximated linear combination of the first three loadings, with small relative error. In other words, a three or four factor model will do a very good job in fitting the time-series yield curve. By looking at the principal components, it can be seen that different maturities impact the yield in different extents. Therefore, there exists the changes in the yield over time. 
